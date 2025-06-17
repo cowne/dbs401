@@ -121,6 +121,13 @@ def detect_error_based_attack(query: str) -> bool:
             return True
     return False
 
+def check_exploit_sqli(query: str) -> bool:
+    q = preprocess_query(query)
+    if detect_tautology_with_sqlparse(q) or detect_error_based_attack(q) or \
+        detect_stack_queries(q) or detect_union_attack(q) or detect_time_based_attack(q):
+        return True
+    return False
+
 # --- Test thử ---
 if __name__ == "__main__":
 
@@ -166,4 +173,3 @@ if __name__ == "__main__":
             result = db.run_query(q)
             print(result)
         print("-" * 50)
-
