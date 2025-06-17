@@ -1,18 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from functools import wraps
 from proxy import check_exploit_sqli
+import db
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with a secure key in production
-
-# Dummy user (replace with database in real app)
-USER_CREDENTIALS = {
-    'username': 'admin',
-    'password': 'password123'
-}
-
-# Dummy search data
-ITEMS = ["apple", "banana", "grape", "orange", "pineapple", "strawberry"]
 
 # Login required decorator
 def login_required(f):
@@ -33,12 +25,21 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        query = "SELECT username,password FROM users WHERE username='" + username + "' AND password ='"+ password +"'"
-        
+        query = 'SELECT * FROM users WHERE username="' + username + '" AND password ="'+ password +'"'
+
+        print(query)
+        print("SQLi detected:", str(check_exploit_sqli(query)))
         if(check_exploit_sqli(query)):
             return render_template('Attackdetection.html')
         else:
-            return redirect(url_for('search'))
+            result = db.run_query(query)
+            print(result)
+            if result:
+                session['logged_in'] = True
+                return redirect(url_for('search'))
+            else:
+                flash("Invalid username or password", "info")
+                return redirect(url_for('login'))
     return render_template('login.html')
 
 @app.route('/logout')

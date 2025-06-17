@@ -40,6 +40,9 @@ def normalize(val: str) -> str:
     return val
 
 def detect_tautology_with_sqlparse(query: str) -> bool:
+
+    query = re.split(r'--|#', query)[0]
+
     parsed = sqlparse.parse(query)
     if not parsed:
         return False
@@ -68,10 +71,10 @@ def detect_tautology_with_sqlparse(query: str) -> bool:
                     # Lấy trái/phải dấu =
                     parts = [t.value.strip() for t in next_token.tokens if t.ttype != Whitespace]
                     if len(parts) == 3 and parts[1] == '=':
-                        # left = normalize(parts[0])
-                        # right = normalize(parts[2])
-                        left = parts[0]
-                        right = parts[2]
+                        left = normalize(parts[0])
+                        right = normalize(parts[2])
+                        # left = parts[0]
+                        # right = parts[2]
                         #print(left, right)
                         if left == right:
                             print(f"[!] Detected tautology: {left} = {right} (after {token.value.upper()})")
@@ -136,24 +139,7 @@ if __name__ == "__main__":
     queries = [
         "SELECT * FROM users WHERE username = 'admin'",
         "SELECT * FROM users WHERE username = 'admin' OR 'admin' = 'admin'",
-        "SELECT * FROM users WHERE username = 'admin' AND 1=1",
-        "SELECT * FROM users WHERE id = 5 AND 5 = 6",
-        "SELECT * FROM users WHERE username = 1 AND 'password' = 'password'",
-        "SELECT * FROM users WHERE username = 1 AND password = 'password' OR 'xyz'='xyz'",
-        "SELECT * FROM users; DROP TABLE users",
-        "SELECT * FROM users WHERE username = 1 AND True",
-        "SELECT * FROM users WHERE username = 1 AND 1",
-        "SELECT * FROM users WHERE username = '1' %55nion%20sel%65ct SELECT 1",
-        "SELECT * FROM users WHERE username = '1' UNION 0x73656c656374 1",
-        "SELECT * FROM users WHERE username = '1' UniON \\u0053\\u0045\\u004c\\u0045\\u0043\\u0054 1",
-        "SELECT * FROM users WHERE username = 'Alice'"
-        # "1 AND (SELECT SLEEP(10) FROM DUAL WHERE DATABASE() LIKE 'A____')#",
-        # "SELECT UPDATEXML(NULL, CONCAT(0x3a, (SELECT user())), NULL)",
-        # "SELECT EXTRACTVALUE(1, CONCAT(0x7e,(SELECT database())))",
-        # "SELECT 1/0 FROM dual",
-        # "SELECT * FROM users WHERE 'a' = '",
-        # "SELECT CAST('abc' AS DECIMAL)",
-        # "SELECT CONVERT('a', DECIMAL)",
+        "SELECT * FROM users WHERE username ='assf' or '1'='1'#"
     ]
 
     for q in queries:

@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 INSERT INTO users (username, password, email) VALUES
-('admin', 'password', 'admin@gmail.com'),
+('admin', 'password123', 'admin@gmail.com'),
 ('minhtran', 'Minh@1234', 'minh.tran@gmail.com'),
 ('hoangnguyen', 'Hoang2024!', 'hoang.nguyen@yahoo.com'),
 ('linhpham', 'Linh#Pass01', 'linh.pham@hotmail.com'),
