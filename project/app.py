@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from functools import wraps
-from proxy import check_exploit_sqli
-import db
+from proxy import check_exploit_sqli, get_results
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with a secure key in production
@@ -32,7 +31,7 @@ def login():
         if(check_exploit_sqli(query)):
             return render_template('Attackdetection.html')
         else:
-            result = db.run_query(query)
+            result = get_results(query)
             if result:
                 session['logged_in'] = True
                 return redirect(url_for('search'))
@@ -57,7 +56,7 @@ def search():
         if(check_exploit_sqli(query)):
             return render_template('Attackdetection.html')
         else:
-            results = db.run_query(query)
+            results = get_results(query)
             if results:
                 return render_template('search.html', name_product=name_product, results=results)
             else:

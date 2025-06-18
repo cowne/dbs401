@@ -131,31 +131,7 @@ def check_exploit_sqli(query: str) -> bool:
         return True
     return False
 
-# --- Test thử ---
-if __name__ == "__main__":
+def get_results(query: str):
+    return db.run_query(query)
 
-    if db.get_connection():
-        print('Connected')
-    queries = [
-        "SELECT * FROM users WHERE username = 'admin'",
-        "SELECT * FROM users WHERE username = 'admin' OR 'admin' = 'admin'",
-        "SELECT * FROM users WHERE username ='assf' or '1'='1'#"
-    ]
-
-    for q in queries:
-        print("Query:", q)
-        q = preprocess_query(q)
-        print("Query after preprocess: ", q)
-        print("Tautology Detected:", detect_tautology_with_sqlparse(q))
-        print("Stack Query Detected:", detect_stack_queries(q))
-        print("Union-based Detected:", detect_union_attack(q))
-        print("Time-based Detected:", detect_time_based_attack(q))
-        print("Error-based Detected:", detect_error_based_attack(q))
-
-        if detect_tautology_with_sqlparse(q) or detect_error_based_attack(q) or \
-        detect_stack_queries(q) or detect_union_attack(q) or detect_time_based_attack(q):
-            print('HACK DETECTED.')
-        else:
-            result = db.run_query(q)
-            print(result)
-        print("-" * 50)
+#viết thêm một hàm để mà ghi log nếu mà detect tấn công.
