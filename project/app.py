@@ -25,7 +25,7 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        
+
         query = 'SELECT * FROM users WHERE username="' + username + '" AND password ="'+ password +'"'
         # query = "SELECT * FROM users WHERE username='" + username + "' AND password = '" + password + "'"
 
@@ -61,7 +61,7 @@ def search():
             if results:
                 return render_template('search.html', name_product=name_product, results=results)
             else:
-                flash("Invalid username or password", "info")
+                flash("No result for the product. Please try again.", "info")
                 return redirect(url_for('search'))
     return render_template('search.html')
 
