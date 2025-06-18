@@ -25,15 +25,14 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        
         query = 'SELECT * FROM users WHERE username="' + username + '" AND password ="'+ password +'"'
+        # query = "SELECT * FROM users WHERE username='" + username + "' AND password = '" + password + "'"
 
-        print(query)
-        print("SQLi detected:", str(check_exploit_sqli(query)))
         if(check_exploit_sqli(query)):
             return render_template('Attackdetection.html')
         else:
             result = db.run_query(query)
-            print(result)
             if result:
                 session['logged_in'] = True
                 return redirect(url_for('search'))
@@ -51,12 +50,20 @@ def logout():
 @app.route('/search', methods=['GET', 'POST'])
 @login_required
 def search():
-    query = ""
-    results = []
+    name_product = ""
     if request.method == 'POST':
-        query = request.form['query']
-        results = [item for item in ITEMS if query.lower() in item.lower()]
-    return render_template('search.html', query=query, results=results)
+        name_product = request.form['name']
+        query = "SELECT * FROM product WHERE name_product LIKE '%" + name_product +"%'"
+        if(check_exploit_sqli(query)):
+            return render_template('Attackdetection.html')
+        else:
+            results = db.run_query(query)
+            if results:
+                return render_template('search.html', name_product=name_product, results=results)
+            else:
+                flash("Invalid username or password", "info")
+                return redirect(url_for('search'))
+    return render_template('search.html')
 
 
 if __name__ == '__main__':
