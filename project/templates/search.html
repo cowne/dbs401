@@ -52,11 +52,22 @@
           <button class="btn btn-primary" type="submit">Search</button>
         </div>
       </form>
-          <ul>
-    {% for item in results %}
-        <li>{{ item }}</li>
-    {% endfor %}
-    </ul>
+          <div class="row">
+  {% for item in results %}
+    <div class="col-md-6 mb-3">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">{{ item['name_product'] }}</h5>
+          <p class="card-text">
+            <strong>Quantity:</strong> {{ item['quantity'] }}<br>
+            <strong>Price:</strong> {{ item['price'] }} VND
+          </p>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
       <a href="{{ url_for('logout') }}">Logout</a>
     </div>
   </body>
