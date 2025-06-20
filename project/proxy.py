@@ -1,4 +1,3 @@
-import mysql.connector
 import sqlparse
 from sqlparse.sql import Where, Comparison
 from sqlparse.tokens import Keyword, DML, Whitespace, Literal
@@ -6,6 +5,9 @@ import re
 import urllib.parse
 import codecs
 import db
+import os
+import csv
+from datetime import datetime
 
 
 def preprocess_query(query: str) -> bool:
@@ -126,12 +128,60 @@ def detect_error_based_attack(query: str) -> bool:
 
 def check_exploit_sqli(query: str) -> bool:
     q = preprocess_query(query)
-    if detect_tautology_with_sqlparse(q) or detect_error_based_attack(q) or \
-        detect_stack_queries(q) or detect_union_attack(q) or detect_time_based_attack(q):
+    if detect_tautology_with_sqlparse(q):
+        write_attack_log(query, "SQL Injection (Tautology)")
         return True
+    if detect_stack_queries(q):
+        write_attack_log(query, "SQL Injection (Stacked Queries)")
+        return True
+    if detect_union_attack(q):
+        write_attack_log(query, "SQL Injection (UNION Queries)")
+        return True
+    if detect_error_based_attack(q):
+        write_attack_log(query, "SQL Injection (Error-Based)")
+        return True
+    if detect_time_based_attack(q):
+        write_attack_log(query, "SQL Injection (Time-Based)")
     return False
 
 def get_results(query: str):
     return db.run_query(query)
 
-#viết thêm một hàm để mà ghi log nếu mà detect tấn công.
+
+def write_attack_log(query: str, attack_type: str):
+    """
+    Writes an attack log entry to 'attack_detected.csv'.
+
+    If the file does not exist, it will be created with headers.
+    Each entry includes the current datetime, the detected payload (query),
+    and the type of attack.
+
+    Args:
+        query (str): The suspicious query or payload detected.
+        attack_type (str): The type of attack detected (e.g., 'SQL Injection', 'XSS').
+    """
+    filename = "attack_detected_logs.csv"
+    headers = ["datetime", "payload", "type"]
+    file_exists = os.path.exists(filename)
+
+    # Get the current datetime in a human-readable format
+    current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    try:
+        # Open the file in append mode. If it doesn't exist, it will be created.
+        with open(filename, 'a', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+
+            # If the file is new, write the header row
+            if not file_exists:
+                writer.writerow(headers)
+
+            # Write the data row
+            writer.writerow([current_datetime, query, attack_type])
+
+        print(f"Attack log entry written to '{filename}': Datetime='{current_datetime}', Payload='{query}', Type='{attack_type}'")
+
+    except IOError as e:
+        print(f"Error writing to file '{filename}': {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")

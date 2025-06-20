@@ -1,0 +1,6 @@
+datetime,payload,type
+2025-06-20 08:40:44,SELECT * FROM products WHERE id = 1 OR '1'='1',SQL Injection (Tautology)
+2025-06-20 08:40:44,"SELECT * FROM users WHERE id=1 AND extractvalue(1,concat(0x5c,user()))",SQL Injection (Error-Based)
+2025-06-20 08:40:44,SELECT * FROM orders; INSERT INTO logs (event) VALUES ('malicious_activity');,SQL Injection (Stacked Queries)
+2025-06-20 08:40:44,"SELECT 1, 2 UNION SELECT username, password FROM admin_users",SQL Injection (UNION Queries)
+2025-06-20 08:40:44,SELECT SLEEP(5),SQL Injection (Time-Based)
