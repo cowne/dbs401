@@ -185,3 +185,6 @@ def write_attack_log(query: str, attack_type: str):
         print(f"Error writing to file '{filename}': {e}")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
+
+#check authentication, nếu mà admin thì sẽ cho chạy những function nguy hiểm, người dùng bình thường thì sẽ chặn những người dùng bth
+#sửa cái proxy thành một cái server, query sẽ chạy qua proxy kiểm tra rồi check, nếu oke thì thực thi, không thì chặn (ưu tiên cái này trước)
