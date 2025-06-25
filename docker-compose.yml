@@ -17,7 +17,7 @@ services:
             - ./my.cnf:/etc/mysql/conf.d/my.cnf:ro
 
     web:
-        build: ./project
+        build: ./web
         depends_on:
             - db
         ports:

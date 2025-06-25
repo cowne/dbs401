@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from functools import wraps
-from detector import check_exploit_sqli, get_results
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with a secure key in production
@@ -28,16 +27,7 @@ def login():
         query = 'SELECT * FROM users WHERE username="' + username + '" AND password ="'+ password +'"'
         # query = "SELECT * FROM users WHERE username='" + username + "' AND password = '" + password + "'"
 
-        if(check_exploit_sqli(query)):
-            return render_template('Attackdetection.html')
-        else:
-            result = get_results(query)
-            if result:
-                session['logged_in'] = True
-                return redirect(url_for('search'))
-            else:
-                flash("Invalid username or password", "info")
-                return redirect(url_for('login'))
+        
     return render_template('login.html')
 
 @app.route('/logout')
