@@ -19,16 +19,13 @@ services:
     web:
         build: ./web
         depends_on:
-            - db
+            - proxy
         ports:
             - "8080:80"   
         restart: unless-stopped 
         environment:
             - FLASK_ENV=development
-            - MYSQL_ROOT_PASSWORD=45299417d86f231f6a584d1488edb763
-            - MYSQL_DATABASE=myDB
-            - MYSQL_USER=db_user
-            - MYSQL_PASSWORD=db_password
+            - PROXY_URL=http://proxy:8000/check_and_run
 
     proxy:
         build: ./proxy

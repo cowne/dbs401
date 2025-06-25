@@ -1,8 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from functools import wraps
+import requests
+import os
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Replace with a secure key in production
+app.secret_key = 'Str@ngS3c3rtK3y'  
+PROXY_URL = os.getenv("PROXY_URL", "http://localhost:8000/check_and_run")
 
 # Login required decorator
 def login_required(f):
@@ -26,8 +29,12 @@ def login():
 
         query = 'SELECT * FROM users WHERE username="' + username + '" AND password ="'+ password +'"'
         # query = "SELECT * FROM users WHERE username='" + username + "' AND password = '" + password + "'"
-
-        
+        response = requests.post(PROXY_URL, json={"query": query})
+        if response.status_code == 403:
+            return render_template('Attackdetection.html')
+        elif response.status_code == 200:
+            session['logged_in'] = True
+            return redirect(url_for('search'))
     return render_template('login.html')
 
 @app.route('/logout')
@@ -43,15 +50,15 @@ def search():
     if request.method == 'POST':
         name_product = request.form['name']
         query = "SELECT * FROM product WHERE name_product LIKE '%" + name_product +"%'"
-        if(check_exploit_sqli(query)):
+        response = requests.post(PROXY_URL, json={"query": query})
+        if response.status_code == 403:
             return render_template('Attackdetection.html')
+        elif response.status_code == 200:
+            results = response.json().get("result", [])
+            return render_template('search.html', name_product=name_product, results=results)
         else:
-            results = get_results(query)
-            if results:
-                return render_template('search.html', name_product=name_product, results=results)
-            else:
-                flash("No result for the product. Please try again.", "info")
-                return redirect(url_for('search'))
+            flash("No result for the product. Please try again.", "info")
+            return redirect(url_for('search'))
     return render_template('search.html')
 
 
