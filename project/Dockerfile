@@ -13,6 +13,6 @@ RUN pip install mysql-connector-python sqlparse flask
 
 # Expose port
 EXPOSE 80
+EXPOSE 8000
 
 CMD [ "./start.sh" ]
-# CMD [ "python","proxy.py" ]
