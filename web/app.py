@@ -27,14 +27,24 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
+        if username == "" or password == "":
+            flash("The username or password is empty. Please try again.", "info")
+            return redirect(url_for('login'))
+
         query = 'SELECT * FROM users WHERE username="' + username + '" AND password ="'+ password +'"'
-        # query = "SELECT * FROM users WHERE username='" + username + "' AND password = '" + password + "'"
+
         response = requests.post(PROXY_URL, json={"query": query})
         if response.status_code == 403:
             return render_template('Attackdetection.html')
         elif response.status_code == 200:
-            session['logged_in'] = True
-            return redirect(url_for('search'))
+            results = response.json().get("result", [])
+            if results:
+                session['logged_in'] = True
+                return redirect(url_for('search'))
+            else:
+                flash("Username or password is incorrect.", "info")
+                return redirect(url_for('login'))
+            
     return render_template('login.html')
 
 @app.route('/logout')
@@ -55,10 +65,11 @@ def search():
             return render_template('Attackdetection.html')
         elif response.status_code == 200:
             results = response.json().get("result", [])
-            return render_template('search.html', name_product=name_product, results=results)
-        else:
-            flash("No result for the product. Please try again.", "info")
-            return redirect(url_for('search'))
+            if results:
+                return render_template('search.html', name_product=name_product, results=results)
+            else:
+                flash("No result for the product. Please try again.", "info")
+                return redirect(url_for('search'))
     return render_template('search.html')
 
 
